@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Entity
-//@Table(name = "master_data", schema = "common_service")
+@Table(name = "master_data", schema = "common_service")
 @Data
 public class MasterData {
 
