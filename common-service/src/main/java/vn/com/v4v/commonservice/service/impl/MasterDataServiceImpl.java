@@ -1,10 +1,10 @@
 package vn.com.v4v.commonservice.service.impl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.com.v4v.common.AbstractService;
+import vn.com.v4v.common.ObjectDataRes;
 import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.entity.QMasterData;
 import vn.com.v4v.commonservice.req.GetMasterDataReq;
@@ -22,9 +22,10 @@ import java.util.List;
 public class MasterDataServiceImpl extends AbstractService implements IMasterDataService {
 
     @Override
-    public ResponseEntity<List<MasterData>> getAllMasterData() {
+    public ObjectDataRes<MasterData> getAllMasterData(Pageable pageable) {
 
         // Init param
+        ObjectDataRes<MasterData> res = new ObjectDataRes<>();
         JPAQueryFactory queryFactory = this.getQueryFactory();
         QMasterData qMasterData = QMasterData.masterData;
 
@@ -33,14 +34,19 @@ public class MasterDataServiceImpl extends AbstractService implements IMasterDat
                 .select(qMasterData)
                 .from(qMasterData)
                 .orderBy(qMasterData.groupCode.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
-        return new ResponseEntity<>(masterData, HttpStatus.OK);
+        res.setData(masterData);
+        res.setTotal(masterData.size());
+        return res;
     }
 
     @Override
-    public ResponseEntity<List<MasterData>> getMasterData(GetMasterDataReq masterDataReq) {
+    public ObjectDataRes<MasterData> getMasterData(GetMasterDataReq masterDataReq) {
 
+        ObjectDataRes<MasterData> res = new ObjectDataRes<>();
         JPAQueryFactory queryFactory = this.getQueryFactory();
         QMasterData qMasterData = QMasterData.masterData;
 
@@ -52,6 +58,8 @@ public class MasterDataServiceImpl extends AbstractService implements IMasterDat
                         .and(qMasterData.groupCode.eq(masterDataReq.getGroupCode()))
                 )
                 .fetch();
-        return new ResponseEntity<>(masterData, HttpStatus.OK);
+        res.setData(masterData);
+        res.setTotal(masterData.size());
+        return res;
     }
 }

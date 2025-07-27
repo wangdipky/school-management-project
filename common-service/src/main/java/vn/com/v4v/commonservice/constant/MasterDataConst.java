@@ -10,4 +10,6 @@ public class MasterDataConst {
 
     public static final String URI_MASTER_DATA = "/master-data" ;
 
+    public static final String URI_GET_DETAIL = "/get-detail" ;
+
 }

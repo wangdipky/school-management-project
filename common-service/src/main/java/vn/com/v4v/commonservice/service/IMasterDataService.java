@@ -1,7 +1,8 @@
 package vn.com.v4v.commonservice.service;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import vn.com.v4v.commonservice.dto.GetAllMasterDataDto;
+import vn.com.v4v.common.ObjectDataRes;
 import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.req.GetMasterDataReq;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * */
 public interface IMasterDataService {
 
-    ResponseEntity<List<MasterData>> getAllMasterData();
+    ObjectDataRes<MasterData> getAllMasterData(Pageable pageable);
 
-    ResponseEntity<List<MasterData>> getMasterData(GetMasterDataReq masterDataReq);
+    ObjectDataRes<MasterData> getMasterData(GetMasterDataReq masterDataReq);
 }

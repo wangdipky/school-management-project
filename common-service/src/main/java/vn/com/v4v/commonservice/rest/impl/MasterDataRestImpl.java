@@ -1,10 +1,19 @@
 package vn.com.v4v.commonservice.rest.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.com.v4v.common.AbstractRest;
+import vn.com.v4v.common.BaseRes;
+import vn.com.v4v.common.ObjectDataRes;
+import vn.com.v4v.common.SearchCommon;
 import vn.com.v4v.commonservice.constant.MasterDataConst;
+import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.req.GetMasterDataReq;
 import vn.com.v4v.commonservice.rest.IMasterDataRest;
 import vn.com.v4v.commonservice.service.IMasterDataService;
@@ -18,7 +27,7 @@ import vn.com.v4v.constant.CommonConstant;
  * */
 @RestController
 @RequestMapping(CommonConstant.API_V1 + MasterDataConst.URI_MASTER_DATA)
-public class MasterDataRestImpl implements IMasterDataRest {
+public class MasterDataRestImpl extends AbstractRest implements IMasterDataRest {
 
     private final IMasterDataService iMasterDataService;
 
@@ -29,14 +38,33 @@ public class MasterDataRestImpl implements IMasterDataRest {
 
     @GetMapping(CommonConstant.URL_LIST)
     @Override
-    public Object getAllMasterData() {
+    public BaseRes getAllMasterData(MultiValueMap<String, String> params
+                                        , Pageable pageable
+                                        , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-        return this.iMasterDataService.getAllMasterData();
+        long start = System.currentTimeMillis();
+        try {
+
+            ObjectDataRes<MasterData> response = iMasterDataService.getAllMasterData(pageable);
+            return this.handleSuccess.handleSuccess(start, response);
+        } catch (Exception e) {
+
+            return this.handleError.handleError(start, e);
+        }
     }
 
+    @GetMapping(MasterDataConst.URI_GET_DETAIL)
     @Override
-    public Object getMasterData(GetMasterDataReq masterDataReq) {
+    public BaseRes getMasterData(MultiValueMap<String, String> params) {
 
-        return this.iMasterDataService.getMasterData(masterDataReq);
+        long start = System.currentTimeMillis();
+        try {
+
+            GetMasterDataReq req = this.buildSearch(params, GetMasterDataReq.class);
+            ObjectDataRes<MasterData> response = iMasterDataService.getMasterData(req);
+            return this.handleSuccess.handleSuccess(start, response);
+        } catch (Exception e) {
+            return this.handleError.handleError(start, e);
+        }
     }
 }
