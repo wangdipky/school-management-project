@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>vn.com.v4v</groupId>
-    <artifactId>common-service</artifactId>
+    <artifactId>master-data-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -19,6 +19,13 @@
         <querydsl.version>5.0.0</querydsl.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <url>http://172.21.176.1:8081/repository/maven-snapshots/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!-- Spring -->
@@ -66,6 +73,13 @@
             <version>${querydsl.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>vn.com.v4v</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -88,6 +102,18 @@
                         <configuration>
                             <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

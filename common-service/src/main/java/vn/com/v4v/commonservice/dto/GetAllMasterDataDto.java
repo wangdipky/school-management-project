@@ -1,24 +1,22 @@
-package vn.com.v4v.commonservice.entity;
+package vn.com.v4v.commonservice.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
 /**
- * Name: MasterData
+ * Name: IMasterDataRest
  * Author: QuangDK
  * Version: 1.0.0
  * CreatedDate: 27/07/2025
  * */
-@Entity
-@Table(name = "master_data", schema = "common_service")
-@Data
-public class MasterData {
+@Getter
+@Setter
+@NoArgsConstructor
+public class GetAllMasterDataDto {
 
-    @Id
     private Long id;
 
     private String groupCode;

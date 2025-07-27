@@ -1,31 +1,57 @@
 package vn.com.v4v.commonservice.service.impl;
 
-import com.querydsl.jpa.JPQLTemplates;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.PersistenceContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import vn.com.v4v.common.AbstractService;
 import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.entity.QMasterData;
+import vn.com.v4v.commonservice.req.GetMasterDataReq;
 import vn.com.v4v.commonservice.service.IMasterDataService;
 
-@Service
-public class MasterDataServiceImpl implements IMasterDataService {
+import java.util.List;
 
-    @PersistenceContext
-    private EntityManager em;
+/**
+ * Name: MasterDataServiceImpl
+ * Author: QuangDK
+ * Version: 1.0.0
+ * CreatedDate: 27/07/2025
+ * */
+@Service
+public class MasterDataServiceImpl extends AbstractService implements IMasterDataService {
 
     @Override
-    public void test() {
+    public ResponseEntity<List<MasterData>> getAllMasterData() {
 
-        JPAQueryFactory queryFactory = new JPAQueryFactory(JPQLTemplates.DEFAULT, em);
-
+        // Init param
+        JPAQueryFactory queryFactory = this.getQueryFactory();
         QMasterData qMasterData = QMasterData.masterData;
-        MasterData masterData = queryFactory.select(qMasterData)
+
+        // Do execute
+        List<MasterData> masterData = queryFactory
+                .select(qMasterData)
                 .from(qMasterData)
-                .fetchFirst();
-        System.out.println(masterData.toString());
+                .orderBy(qMasterData.groupCode.asc())
+                .fetch();
+
+        return new ResponseEntity<>(masterData, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<MasterData>> getMasterData(GetMasterDataReq masterDataReq) {
+
+        JPAQueryFactory queryFactory = this.getQueryFactory();
+        QMasterData qMasterData = QMasterData.masterData;
+
+        List<MasterData> masterData = queryFactory
+                .select(qMasterData)
+                .from(qMasterData)
+                .where(
+                        qMasterData.kindCode.eq(masterDataReq.getKindCode())
+                        .and(qMasterData.groupCode.eq(masterDataReq.getGroupCode()))
+                )
+                .fetch();
+        return new ResponseEntity<>(masterData, HttpStatus.OK);
     }
 }
