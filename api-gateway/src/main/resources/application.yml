@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: MasterDataService
+              uri: http://172.21.176.1:8100
+              predicates:
+                - Path=/api/v1/master-data/**
+server:
+  port: 8000
