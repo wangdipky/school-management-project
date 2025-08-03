@@ -35,8 +35,8 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
 
         long start = System.currentTimeMillis();
         try {
+            String response = iJwtService.generateToken("admin", List.of());
 
-            String response = iJwtService.generateToken("abc", List.of());
             return this.handleSuccess.handleSuccess(start, response);
         } catch (Exception e) {
 
