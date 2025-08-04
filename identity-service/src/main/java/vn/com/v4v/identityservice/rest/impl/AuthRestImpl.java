@@ -10,8 +10,6 @@ import vn.com.v4v.identityservice.req.AuthReq;
 import vn.com.v4v.identityservice.rest.IAuthRest;
 import vn.com.v4v.identityservice.service.IJwtService;
 
-import java.util.List;
-
 /**
  * Name: AuthRestImpl
  * Author: QuangDK
@@ -35,7 +33,7 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
 
         long start = System.currentTimeMillis();
         try {
-            String response = iJwtService.generateToken("admin", List.of());
+            String response = iJwtService.generateToken(req);
 
             return this.handleSuccess.handleSuccess(start, response);
         } catch (Exception e) {

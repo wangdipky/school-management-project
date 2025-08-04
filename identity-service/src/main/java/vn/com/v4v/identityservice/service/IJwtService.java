@@ -1,7 +1,6 @@
 package vn.com.v4v.identityservice.service;
 
-
-import java.util.List;
+import vn.com.v4v.identityservice.req.AuthReq;
 
 /**
  * Name: IJwtService
@@ -11,5 +10,5 @@ import java.util.List;
  * */
 public interface IJwtService {
 
-    String generateToken(String subject, List<String> roles);
+    String generateToken(AuthReq authReq);
 }

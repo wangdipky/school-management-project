@@ -2,11 +2,13 @@ package vn.com.v4v.identityservice.service.impl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.com.v4v.common.AbstractService;
 import vn.com.v4v.identityservice.entity.*;
 import vn.com.v4v.identityservice.service.IUserService;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,25 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         return schAccount;
     }
 
+    @Override
+    public SchPwd getPasswordByUserId(Long userId) {
+
+        // Init param and variable
+        SchPwd schPwd = null;
+        JPAQueryFactory queryFactory = this.getQueryFactory();
+        QSchPwd qSchPwd = QSchPwd.schPwd;
+
+        // Check null and do Execution
+        if(null != queryFactory) {
+
+            schPwd = queryFactory.select(qSchPwd)
+                    .select(qSchPwd)
+                    .from(qSchPwd)
+                    .where(qSchPwd.accountId.eq(userId))
+                    .fetchOne();
+        }
+        return schPwd;
+    }
 
     @Override
     public List<Long> getListGroupIds(Long userId) {
@@ -134,4 +155,27 @@ public class UserServiceImpl extends AbstractService implements IUserService {
 
         return listRoles;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId) {
+
+        // Init param and variable
+        JPAQueryFactory queryFactory = this.getQueryFactory();
+        QSchPwd qSchPwd = QSchPwd.schPwd;
+        long modify = 0;
+
+        // Check factory
+        if(null != queryFactory) {
+
+            modify = queryFactory.update(qSchPwd)
+                    .set(qSchPwd.countWrong, countWrong)
+                    .set(qSchPwd.isLock, isWrong)
+                    .set(qSchPwd.lastWrong, new Date())
+                    .where(qSchPwd.accountId.eq(userId))
+                    .execute();
+        }
+        return modify;
+    }
+
 }
