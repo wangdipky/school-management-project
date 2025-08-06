@@ -2,15 +2,14 @@ package vn.com.v4v.identityservice.service.impl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.com.v4v.common.AbstractService;
 import vn.com.v4v.identityservice.entity.*;
 import vn.com.v4v.identityservice.service.IUserService;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Name: UserServiceImpl
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
  * CreatedDate: 03/08/2025
  * */
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class UserServiceImpl extends AbstractService implements IUserService {
 
     @Override
@@ -156,9 +156,8 @@ public class UserServiceImpl extends AbstractService implements IUserService {
         return listRoles;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId) {
+    public Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong) {
 
         // Init param and variable
         JPAQueryFactory queryFactory = this.getQueryFactory();
@@ -171,7 +170,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
             modify = queryFactory.update(qSchPwd)
                     .set(qSchPwd.countWrong, countWrong)
                     .set(qSchPwd.isLock, isWrong)
-                    .set(qSchPwd.lastWrong, new Date())
+                    .set(qSchPwd.lastWrong, lastWrong)
                     .where(qSchPwd.accountId.eq(userId))
                     .execute();
         }

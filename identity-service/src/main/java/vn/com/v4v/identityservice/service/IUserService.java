@@ -4,6 +4,7 @@ import vn.com.v4v.identityservice.entity.SchAccount;
 import vn.com.v4v.identityservice.entity.SchAccountGroup;
 import vn.com.v4v.identityservice.entity.SchPwd;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,5 +27,5 @@ public interface IUserService {
 
     List<String> getListRoles(List<Long> functionIds);
 
-    Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId);
+    Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong);
 }

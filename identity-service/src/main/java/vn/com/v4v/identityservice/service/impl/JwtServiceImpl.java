@@ -8,15 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import vn.com.v4v.exception.DetailException;
 import vn.com.v4v.identityservice.entity.SchAccount;
-import vn.com.v4v.identityservice.entity.SchAccountGroup;
 import vn.com.v4v.identityservice.entity.SchPwd;
 import vn.com.v4v.identityservice.req.AuthReq;
 import vn.com.v4v.identityservice.service.IJwtService;
 import vn.com.v4v.identityservice.service.IUserService;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +45,11 @@ public class JwtServiceImpl implements IJwtService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String generateToken(AuthReq authReq) {
 
         // Init variable and param
+        String token;
         int countLock = 3;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         Map<String, Object> claims = new HashMap<>();
@@ -75,7 +76,7 @@ public class JwtServiceImpl implements IJwtService {
 
             this.iUserService.updateStatusWrong(sPwd.getCountWrong() + 1
                     , countLock == sPwd.getCountWrong() + 1
-                    , sPwd.getAccountId());
+                    , sPwd.getAccountId(), new Date());
             throw new DetailException("Wrong password");
         }
 
@@ -89,12 +90,22 @@ public class JwtServiceImpl implements IJwtService {
         List<String> listRoles = this.iUserService.getListRoles(listFunction);
         claims.put("roles", listRoles);
 
-        return Jwts
+        // Create token
+        token = Jwts
                 .builder()
                 .subject(authReq.getUsername())
                 .expiration(new Date(System.currentTimeMillis() + accessTokenTime))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
                 .claims(claims)
                 .compact();
+
+        // Reset count wrong password
+        if(token != null) {
+
+            this.iUserService.updateStatusWrong(0
+                    , false
+                    , sPwd.getAccountId(), sPwd.getLastWrong());
+        }
+        return token;
     }
 }
