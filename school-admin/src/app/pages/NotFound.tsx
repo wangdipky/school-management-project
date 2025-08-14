@@ -1,23 +1,63 @@
-import { Link } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
+import img_notfound1 from '../assets/images/notfound1.png';
+import { SYS_ERR_NOT_FOUND_TEXT1, SYS_ERR_NOT_FOUND_TEXT2, SYS_INFO_BTN_HOME } from "../const/AuthConst";
+import { useLoading } from "../../common/hooks/useLoading";
 
 function ErrNotFound() {
 
-    return <>
-        <div className="not-found-container">
-            <div className="broken-chain">
-                {/* You can replace this with an SVG or an image of a broken chain */}
-                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 18l-6-6M12 12l-6-6M16 6a3 3 0 1 0-3-3a3 3 0 0 0 3 3zM6 18a3 3 0 1 0 3-3a3 3 0 0 0-3 3z" />
-                </svg>
-            </div>
-            <h1 className="not-found-header">404</h1>
-            <p className="not-found-text">Page Not Found</p>
-            <p className="not-found-subtext">
-                The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-            </p>
-            <Link to="/" className="home-button">Go to Homepage</Link>
-        </div>
-    </>;
+    const { showLoading } = useLoading();
+
+    // Function area
+    const handleGoHome = (path: string) => {
+
+        showLoading();
+        setTimeout(() => {
+            window.location.href = path;
+        }, 300);
+
+    }
+
+    // End function area
+    return (
+        <>
+            <Box sx={{
+                backgroundColor: '#FFFFFF',
+                width: '100vw',
+                height: '100vh'
+            }}>
+                <Box sx={{
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    pb: 5
+                }}>
+                    <Typography variant='h2' sx={{
+                        fontWeight: 'bold',
+                    }}>{SYS_ERR_NOT_FOUND_TEXT1}</Typography>
+                    <Typography variant='h2' sx={{
+                        fontWeight: 'bold'
+                    }}>{SYS_ERR_NOT_FOUND_TEXT2}</Typography>
+                </Box>
+                <Box sx={{
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                }}>
+                    <img src={img_notfound1} />
+                </Box>
+                <Box sx={{
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    pt: 5
+                }}>
+                    <button onClick={() => handleGoHome('/')} style={{
+                        borderRadius: '25px',
+                        border: 'solid 2px',
+                        borderColor: 'black',
+                        backgroundColor: '#FFEEEE'
+                    }}>{SYS_INFO_BTN_HOME}</button>
+                </Box>
+            </Box>
+        </>
+    );
 }
 
 export default ErrNotFound;
