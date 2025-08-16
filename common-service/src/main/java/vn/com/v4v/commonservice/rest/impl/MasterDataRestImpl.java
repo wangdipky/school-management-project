@@ -8,10 +8,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vn.com.v4v.common.AbstractRest;
-import vn.com.v4v.common.BaseRes;
-import vn.com.v4v.common.ObjectDataRes;
-import vn.com.v4v.common.SearchCommon;
+import vn.com.v4v.common.*;
 import vn.com.v4v.commonservice.constant.MasterDataConst;
 import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.req.GetMasterDataReq;
@@ -38,7 +35,7 @@ public class MasterDataRestImpl extends AbstractRest implements IMasterDataRest 
 
     @GetMapping(CommonConstant.URL_LIST)
     @Override
-    public BaseRes getAllMasterData(MultiValueMap<String, String> params
+    public BaseResponse getAllMasterData(MultiValueMap<String, String> params
                                         , Pageable pageable
                                         , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
@@ -55,7 +52,7 @@ public class MasterDataRestImpl extends AbstractRest implements IMasterDataRest 
 
     @GetMapping(MasterDataConst.URI_GET_DETAIL)
     @Override
-    public BaseRes getMasterData(MultiValueMap<String, String> params) {
+    public BaseResponse getMasterData(MultiValueMap<String, String> params) {
 
         long start = System.currentTimeMillis();
         try {

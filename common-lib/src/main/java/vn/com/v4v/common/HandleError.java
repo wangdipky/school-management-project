@@ -1,9 +1,11 @@
 package vn.com.v4v.common;
 
-import jakarta.ws.rs.BadRequestException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import vn.com.v4v.dto.BaseResponseDto;
 import vn.com.v4v.exception.DetailException;
+
+import java.util.Date;
+import java.util.UUID;
 
 /**
  * Name: HandleError
@@ -13,19 +15,27 @@ import vn.com.v4v.exception.DetailException;
  * */
 public class HandleError {
 
-    public BaseRes handleError(Long start, Exception exception) {
+    public BaseResponse handleError(Long start, Exception exception) {
 
+        // Init var
         HttpStatus status = null;
-        BaseRes res = new BaseRes();
-        res.setRequest(start);
-        // Status
+        BaseResponse response = null;
+        BaseResponseDto responseDto;
+
+        // Set status
         if(exception instanceof DetailException) {
             status = HttpStatus.BAD_REQUEST;
         } else {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        res.setData(new ResponseEntity<>(exception.getMessage(), status));
-        return res;
+        // Set dto
+        responseDto = BaseResponseDto.builder()
+                .data(exception.getMessage())
+                .time(new Date())
+                .requestId(UUID.randomUUID().toString())
+                .build();
+        // Init return data
+        response = new BaseResponse(responseDto, status);
+        return response;
     }
-
 }

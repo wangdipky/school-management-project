@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Name: BaseRes

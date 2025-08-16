@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestParam;
-import vn.com.v4v.common.BaseRes;
+import vn.com.v4v.common.BaseResponse;
 
 /**
  * Name: IMasterDataRest
@@ -15,9 +15,9 @@ import vn.com.v4v.common.BaseRes;
  * */
 public interface IMasterDataRest {
 
-    BaseRes getAllMasterData(@RequestParam MultiValueMap<String, String> params
+    BaseResponse getAllMasterData(@RequestParam MultiValueMap<String, String> params
                                 , Pageable pageable
                                 , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
 
-    BaseRes getMasterData(@RequestParam MultiValueMap<String, String> params);
+    BaseResponse getMasterData(@RequestParam MultiValueMap<String, String> params);
 }
