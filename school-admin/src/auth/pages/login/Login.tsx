@@ -11,9 +11,12 @@ import { LOGIN_MES_PASSWORD, LOGIN_MES_USERNAME } from '../../const/MessageConst
 import ButtonActionElement from '../../../common/components/ButtonActionElement';
 import PasswordFieldElement from '../../../common/components/PasswordFieldElement';
 import { login } from '../../service/AuthSerice';
+import { ToastContainer } from "react-toastify";
 
 
 function Login() {
+
+    // Var
 
     // Validation
     const validation = yup
@@ -37,67 +40,69 @@ function Login() {
         login(data).then(res => {
             console.log(res);
         }).catch(err => {
-            console.log(err);
+
         });
-        console.log(data);
     };
 
     // End Function area
     return (
-        <Box sx={{
-            backgroundImage: `url(${loginBrg})`,
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            minHeight: '100vh',
-            zIndex: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-        }}>
+        <>
+            <ToastContainer />
             <Box sx={{
+                backgroundImage: `url(${loginBrg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                minHeight: '100vh',
+                zIndex: 0,
                 display: 'flex',
-                flexDirection: 'column',
-                borderColor: '#979792',
-                border: 'solid 5px',
-                borderRadius: '5px',
-                width: '50%',
-                backgroundColor: '#ffffff',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'center'
             }}>
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'column',
+                    borderColor: '#979792',
+                    border: 'solid 5px',
+                    borderRadius: '5px',
+                    width: '50%',
+                    backgroundColor: '#ffffff',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <img width='15%' src={logoBook} />
-                    <Typography variant='h3' sx={{
-                        fontSize: {
-                            lg: 30,
-                            md: 20,
-                            sm: 15,
-                            xs: 10
-                        }
-                    }}>{TITLE_LOGIN_NAME}</Typography>
-                </Box>
-                <Box sx={{ width: '100%' }}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)}>
-                        <Stack spacing={2} sx={{ p: 3 }}>
-                            <TextFieldElement label='Username' name='username' control={form.control} />
-                            <PasswordFieldElement label='Password' name='password' control={form.control} />
-                            <ButtonActionElement type='submit' variant='outlined'
-                                sx={{
-                                    background: 'linear-gradient(to right, #51ba62 50%, #276ab4 50%)',
-                                    color: 'white'
-                                }}
-                            >{TITLE_BUTTON_LOGIN}</ButtonActionElement>
-                        </Stack>
-                    </form>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <img width='15%' src={logoBook} />
+                        <Typography variant='h3' sx={{
+                            fontSize: {
+                                lg: 30,
+                                md: 20,
+                                sm: 15,
+                                xs: 10
+                            }
+                        }}>{TITLE_LOGIN_NAME}</Typography>
+                    </Box>
+                    <Box sx={{ width: '100%' }}>
+                        <form onSubmit={form.handleSubmit(handleSubmit)}>
+                            <Stack spacing={2} sx={{ p: 3 }}>
+                                <TextFieldElement label='Username' name='username' control={form.control} />
+                                <PasswordFieldElement label='Password' name='password' control={form.control} />
+                                <ButtonActionElement type='submit' variant='outlined'
+                                    sx={{
+                                        background: 'linear-gradient(to right, #51ba62 50%, #276ab4 50%)',
+                                        color: 'white'
+                                    }}
+                                >{TITLE_BUTTON_LOGIN}</ButtonActionElement>
+                            </Stack>
+                        </form>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </>
     )
 }
 
