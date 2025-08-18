@@ -39,6 +39,9 @@ public class SchPwd {
     @Convert(converter = NumericBooleanConverter.class)
     private Boolean isLock;
 
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
     @Column(name = "created_by")
     private Long createdBy;
 

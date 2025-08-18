@@ -157,7 +157,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
     }
 
     @Override
-    public Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong) {
+    public Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong, String refreshToken) {
 
         // Init param and variable
         JPAQueryFactory queryFactory = this.getQueryFactory();
@@ -171,6 +171,7 @@ public class UserServiceImpl extends AbstractService implements IUserService {
                     .set(qSchPwd.countWrong, countWrong)
                     .set(qSchPwd.isLock, isWrong)
                     .set(qSchPwd.lastWrong, lastWrong)
+                    .set(qSchPwd.refreshToken, refreshToken)
                     .where(qSchPwd.accountId.eq(userId))
                     .execute();
         }

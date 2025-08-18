@@ -27,5 +27,5 @@ public interface IUserService {
 
     List<String> getListRoles(List<Long> functionIds);
 
-    Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong);
+    Long updateStatusWrong(int countWrong, Boolean isWrong, Long userId, Date lastWrong, String refreshToken);
 }

@@ -3,6 +3,7 @@ package vn.com.v4v.identityservice.rest;
 import org.springframework.web.bind.annotation.RequestBody;
 import vn.com.v4v.common.BaseResponse;
 import vn.com.v4v.identityservice.req.AuthReq;
+import vn.com.v4v.identityservice.req.RefreshTokenReq;
 
 /**
  * Name: IAuthRest
@@ -13,4 +14,6 @@ import vn.com.v4v.identityservice.req.AuthReq;
 public interface IAuthRest {
 
     BaseResponse login(@RequestBody AuthReq req);
+
+    BaseResponse refreshToken(@RequestBody RefreshTokenReq req);
 }

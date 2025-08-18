@@ -1,8 +1,10 @@
 package vn.com.v4v.identityservice.service.impl;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -11,15 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import vn.com.v4v.exception.DetailException;
+import vn.com.v4v.identityservice.dto.AuthResponseDto;
 import vn.com.v4v.identityservice.entity.SchAccount;
 import vn.com.v4v.identityservice.entity.SchPwd;
 import vn.com.v4v.identityservice.req.AuthReq;
+import vn.com.v4v.identityservice.req.RefreshTokenReq;
 import vn.com.v4v.identityservice.service.IJwtService;
 import vn.com.v4v.identityservice.service.IUserService;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Name: JwtServiceImpl
@@ -37,6 +42,9 @@ public class JwtServiceImpl implements IJwtService {
     @Value("${jwt.access_token_time}")
     private Long accessTokenTime;
 
+    @Value("${jwt.refresh_token_time}")
+    private Long refreshTokenTime;
+
     private final IUserService iUserService;
 
     @Autowired
@@ -46,14 +54,16 @@ public class JwtServiceImpl implements IJwtService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String generateToken(AuthReq authReq) {
+    public AuthResponseDto generateToken(AuthReq authReq) {
 
         // Init variable and param
-        String token;
+        AuthResponseDto authResponseDto = new AuthResponseDto();
+        String token, refreshToken = null;
         int countLock = 3;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         Map<String, Object> claims = new HashMap<>();
         SchPwd sPwd = null;
+
         // Check user exist
         SchAccount account = this.iUserService.loadUserByUsername(authReq.getUsername());
         if(ObjectUtils.isEmpty(account)) {
@@ -76,7 +86,7 @@ public class JwtServiceImpl implements IJwtService {
 
             this.iUserService.updateStatusWrong(sPwd.getCountWrong() + 1
                     , countLock == sPwd.getCountWrong() + 1
-                    , sPwd.getAccountId(), new Date());
+                    , sPwd.getAccountId(), new Date(), sPwd.getRefreshToken());
             throw new DetailException("Wrong password");
         }
 
@@ -99,13 +109,74 @@ public class JwtServiceImpl implements IJwtService {
                 .claims(claims)
                 .compact();
 
+        // Create refreshToken
+        refreshToken = Jwts
+                .builder()
+                .subject(authReq.getUsername())
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenTime))
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
+                .claims(claims)
+                .compact();
+
         // Reset count wrong password
         if(token != null) {
 
             this.iUserService.updateStatusWrong(0
                     , false
-                    , sPwd.getAccountId(), sPwd.getLastWrong());
+                    , sPwd.getAccountId(), sPwd.getLastWrong(), refreshToken);
         }
-        return token;
+
+        // set data
+        authResponseDto.setAccessToken(token);
+        authResponseDto.setExpiresIn(new Date(System.currentTimeMillis() + accessTokenTime).getTime());
+        authResponseDto.setRefreshToken(refreshToken);
+
+        return authResponseDto;
+    }
+
+    @Override
+    public AuthResponseDto refreshToken(RefreshTokenReq refreshTokenReq) {
+
+        AuthResponseDto authResponseDto = new AuthResponseDto();
+        String refreshToken = null;
+        SchAccount account = this.iUserService.loadUserByUsername(refreshTokenReq.getUsername());
+        if(ObjectUtils.isEmpty(account)) {
+
+            throw new DetailException("User not found");
+        }
+
+        // String refresh token
+        SchPwd sPwd = this.iUserService.getPasswordByUserId(account.getId());
+        refreshToken = sPwd.getRefreshToken();
+
+        // Check valid token
+        if(!StringUtils.equals(refreshTokenReq.getRefreshToken(), refreshToken)) {
+
+            throw new DetailException("Refresh token is invalid");
+        }
+
+        // Check refresh token expr
+        Date exprDate = this.extractClaims(refreshToken, Claims::getExpiration);
+        if(new Date().after(exprDate)) {
+            throw new DetailException("Refresh token is expired");
+        }
+        return authResponseDto;
+    }
+
+    private Claims getClaims(String token) {
+
+        return Jwts
+                .parser()
+                .decryptWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
+                .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private <T> T extractClaims(String token, Function<Claims, T> function) {
+
+        Claims claims = this.getClaims(token);
+        return function.apply(claims);
     }
 }

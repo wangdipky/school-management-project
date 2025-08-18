@@ -6,7 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.v4v.common.AbstractRest;
 import vn.com.v4v.common.BaseResponse;
+import vn.com.v4v.constant.CommonConstant;
+import vn.com.v4v.identityservice.constant.AuthConst;
+import vn.com.v4v.identityservice.dto.AuthResponseDto;
 import vn.com.v4v.identityservice.req.AuthReq;
+import vn.com.v4v.identityservice.req.RefreshTokenReq;
 import vn.com.v4v.identityservice.rest.IAuthRest;
 import vn.com.v4v.identityservice.service.IJwtService;
 
@@ -17,7 +21,7 @@ import vn.com.v4v.identityservice.service.IJwtService;
  * CreatedDate: 02/08/2025
  * */
 @RestController
-@RequestMapping("/api/v1/auth/login")
+@RequestMapping(CommonConstant.API_V1 + AuthConst.URI_AUTH)
 public class AuthRestImpl extends AbstractRest implements IAuthRest {
 
     private final IJwtService iJwtService;
@@ -27,13 +31,13 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
         this.iJwtService = iJwtService;
     }
 
-    @PostMapping
+    @PostMapping(AuthConst.URI_LOGIN)
     @Override
     public BaseResponse login(AuthReq req) {
 
         long start = System.currentTimeMillis();
         try {
-            String response = iJwtService.generateToken(req);
+            AuthResponseDto response = iJwtService.generateToken(req);
             return this.handleSuccess.handleSuccess(start, response);
         } catch (Exception e) {
 
@@ -41,4 +45,16 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
         }
     }
 
+    @PostMapping(AuthConst.URI_REFRESH)
+    @Override
+    public BaseResponse refreshToken(RefreshTokenReq req) {
+
+        long start = System.currentTimeMillis();
+        try {
+            AuthResponseDto response = iJwtService.refreshToken(req);
+        } catch (Exception e) {
+            return this.handleError.handleError(start, e);
+        }
+        return null;
+    }
 }

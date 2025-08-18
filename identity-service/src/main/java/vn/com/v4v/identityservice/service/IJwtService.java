@@ -1,6 +1,8 @@
 package vn.com.v4v.identityservice.service;
 
+import vn.com.v4v.identityservice.dto.AuthResponseDto;
 import vn.com.v4v.identityservice.req.AuthReq;
+import vn.com.v4v.identityservice.req.RefreshTokenReq;
 
 /**
  * Name: IJwtService
@@ -10,5 +12,7 @@ import vn.com.v4v.identityservice.req.AuthReq;
  * */
 public interface IJwtService {
 
-    String generateToken(AuthReq authReq);
+    AuthResponseDto generateToken(AuthReq authReq);
+
+    AuthResponseDto refreshToken(RefreshTokenReq refreshTokenReq);
 }
