@@ -61,7 +61,8 @@ public class JwtServiceImpl implements IJwtService {
         String token, refreshToken = null;
         int countLock = 3;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        Map<String, Object> claims = new HashMap<>();
+        Map<String, Object> accessClaims = new HashMap<>();
+        Map<String, Object> refreshClaims = new HashMap<>();
         SchPwd sPwd = null;
 
         // Check user exist
@@ -90,23 +91,18 @@ public class JwtServiceImpl implements IJwtService {
             throw new DetailException("Wrong password");
         }
 
-        // Get list group
-        List<Long> listGroupIds = this.iUserService.getListGroupIds(account.getId());
-
-        List<Long> listRoleIds = this.iUserService.getListRoleIds(listGroupIds);
-
-        List<Long> listFunction = this.iUserService.getListFunctionIds(listRoleIds);
-
-        List<String> listRoles = this.iUserService.getListRoles(listFunction);
-        claims.put("roles", listRoles);
-
+        // Get list roles
+        List<String> listRoles = this.getRoles(account.getId());
+        accessClaims.put("roles", listRoles);
+        refreshClaims.put("roles", listRoles);
+        refreshClaims.put("refreshToken", true);
         // Create token
         token = Jwts
                 .builder()
                 .subject(authReq.getUsername())
                 .expiration(new Date(System.currentTimeMillis() + accessTokenTime))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
-                .claims(claims)
+                .claims(accessClaims)
                 .compact();
 
         // Create refreshToken
@@ -115,7 +111,7 @@ public class JwtServiceImpl implements IJwtService {
                 .subject(authReq.getUsername())
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenTime))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
-                .claims(claims)
+                .claims(refreshClaims)
                 .compact();
 
         // Reset count wrong password
@@ -139,6 +135,7 @@ public class JwtServiceImpl implements IJwtService {
 
         AuthResponseDto authResponseDto = new AuthResponseDto();
         String refreshToken = null;
+        Map<String, Object> claims = new HashMap<>();
         SchAccount account = this.iUserService.loadUserByUsername(refreshTokenReq.getUsername());
         if(ObjectUtils.isEmpty(account)) {
 
@@ -160,7 +157,37 @@ public class JwtServiceImpl implements IJwtService {
         if(new Date().after(exprDate)) {
             throw new DetailException("Refresh token is expired");
         }
+
+        // Get list role
+        List<String> listRoles = this.getRoles(account.getId());
+        claims.put("roles", listRoles);
+
+        // Create new token
+        String newToken = Jwts
+                .builder()
+                .subject(refreshTokenReq.getUsername())
+                .expiration(new Date(System.currentTimeMillis() + accessTokenTime))
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secretKey)))
+                .claims(claims)
+                .compact();
+
+        // Set data return
+        authResponseDto.setRefreshToken(refreshToken);
+        authResponseDto.setAccessToken(newToken);
+        authResponseDto.setExpiresIn(new Date(System.currentTimeMillis() + accessTokenTime).getTime());
         return authResponseDto;
+    }
+
+    @Override
+    public List<String> getRoles(Long accountId) {
+
+        List<Long> listGroupIds = this.iUserService.getListGroupIds(accountId);
+
+        List<Long> listRoleIds = this.iUserService.getListRoleIds(listGroupIds);
+
+        List<Long> listFunction = this.iUserService.getListFunctionIds(listRoleIds);
+
+        return this.iUserService.getListRoles(listFunction);
     }
 
     private Claims getClaims(String token) {

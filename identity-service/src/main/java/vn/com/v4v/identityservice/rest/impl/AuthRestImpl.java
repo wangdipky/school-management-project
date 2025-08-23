@@ -52,9 +52,9 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
         long start = System.currentTimeMillis();
         try {
             AuthResponseDto response = iJwtService.refreshToken(req);
+            return this.handleSuccess.handleSuccess(start, response);
         } catch (Exception e) {
             return this.handleError.handleError(start, e);
         }
-        return null;
     }
 }
