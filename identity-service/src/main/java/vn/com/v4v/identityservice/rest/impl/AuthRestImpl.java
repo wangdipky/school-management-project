@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.com.v4v.common.AbstractRest;
 import vn.com.v4v.common.BaseResponse;
 import vn.com.v4v.constant.CommonConstant;
+import vn.com.v4v.db.repositories.ISystemKeyRepository;
 import vn.com.v4v.identityservice.constant.AuthConst;
 import vn.com.v4v.identityservice.dto.AuthResponseDto;
 import vn.com.v4v.identityservice.req.AuthReq;
@@ -27,7 +28,7 @@ public class AuthRestImpl extends AbstractRest implements IAuthRest {
     private final IJwtService iJwtService;
 
     @Autowired
-    public AuthRestImpl(IJwtService iJwtService) {
+    public AuthRestImpl(IJwtService iJwtService, ISystemKeyRepository iSystemKeyRepository) {
         this.iJwtService = iJwtService;
     }
 
