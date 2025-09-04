@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.com.v4v.common.*;
 import vn.com.v4v.commonservice.constant.MasterDataConst;
+import vn.com.v4v.commonservice.dto.ListSearchConditionDto;
 import vn.com.v4v.commonservice.entity.MasterData;
 import vn.com.v4v.commonservice.req.GetMasterDataReq;
 import vn.com.v4v.commonservice.rest.IMasterDataRest;
 import vn.com.v4v.commonservice.service.IMasterDataService;
 import vn.com.v4v.constant.CommonConstant;
+import vn.com.v4v.utils.SearchUtils;
 
 /**
  * Name: MasterDataRestImpl
@@ -42,7 +44,8 @@ public class MasterDataRestImpl extends AbstractRest implements IMasterDataRest 
         long start = System.currentTimeMillis();
         try {
 
-            ObjectDataRes<MasterData> response = iMasterDataService.getAllMasterData(pageable);
+            ApiRequest<ListSearchConditionDto> request = SearchUtils.buildSearch(params, ListSearchConditionDto.class, pageable);
+            ObjectDataRes<MasterData> response = iMasterDataService.getAllMasterData(request);
             return this.handleSuccess.handleSuccess(start, response);
         } catch (Exception e) {
 

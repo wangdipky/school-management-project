@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import vn.com.v4v.apigateway.constant.SecurityConst;
 
 import java.util.List;
 
@@ -44,9 +45,10 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(auth -> {
-           auth.requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
-                   .requestMatchers("/api/v1/master-data/**").hasAuthority("MASTER_DATA")
-                   .anyRequest().authenticated();
+            auth
+                   .requestMatchers(HttpMethod.POST, SecurityConst.SERVICE_URL.SERVICE_AUTH_URL).permitAll()
+                   .requestMatchers(SecurityConst.SERVICE_URL.SERVICE_MASTER_DATA_URL).hasAnyAuthority(SecurityConst.ROLE.ROLE_MASTER_DATA, SecurityConst.ROLE.ROLE_ADMIN)
+                   .anyRequest().denyAll();
         });
         return http.build();
     }

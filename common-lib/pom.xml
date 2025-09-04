@@ -14,6 +14,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <querydsl.version>5.0.0</querydsl.version>
     <spring.version>6.2.8</spring.version>
+    <gson.version>2.10.1</gson.version>
+    <jackson.version>2.19.1</jackson.version>
+    <lombok.version>1.18.32</lombok.version>
+    <springdata.version>3.5.1</springdata.version>
   </properties>
 
   <dependencies>
@@ -50,16 +54,28 @@
     </dependency>
 
     <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.19.1</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.32</version>
+      <version>${lombok.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-commons</artifactId>
+      <version>${springdata.version}</version>
     </dependency>
 
     <dependency>
@@ -73,6 +89,7 @@
       <artifactId>jakarta.ws.rs-api</artifactId>
       <version>3.1.0</version>
     </dependency>
+
   </dependencies>
 
   <distributionManagement>
