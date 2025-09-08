@@ -46,8 +46,11 @@ public class MasterDataServiceImpl extends AbstractService implements IMasterDat
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        // Get count
+        int count = queryFactory.select(qMasterData).from(qMasterData).fetch().size();
+
         res.setData(masterData);
-        res.setTotal(masterData.size());
+        res.setTotal(count);
         return res;
     }
 

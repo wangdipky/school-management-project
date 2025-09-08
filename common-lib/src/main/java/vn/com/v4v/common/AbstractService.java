@@ -1,5 +1,6 @@
 package vn.com.v4v.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,6 +12,8 @@ import jakarta.persistence.PersistenceContext;
  * CreatedDate: 27/07/2025
  * */
 public class AbstractService {
+
+    protected final ObjectMapper mapper = new ObjectMapper();
 
     @PersistenceContext
     private EntityManager em;

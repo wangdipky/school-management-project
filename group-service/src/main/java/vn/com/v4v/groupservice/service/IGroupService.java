@@ -2,6 +2,7 @@ package vn.com.v4v.groupservice.service;
 
 import vn.com.v4v.common.ApiRequest;
 import vn.com.v4v.common.ObjectDataRes;
+import vn.com.v4v.groupservice.dto.AddGroupDto;
 import vn.com.v4v.groupservice.dto.ListSearchConditionDto;
 import vn.com.v4v.groupservice.entity.SchGroup;
 
@@ -14,4 +15,8 @@ import vn.com.v4v.groupservice.entity.SchGroup;
 public interface IGroupService {
 
     ObjectDataRes<SchGroup> search(ApiRequest<ListSearchConditionDto> request);
+
+    AddGroupDto addGroup(AddGroupDto dto);
+
+    int checkDuplicateCode(String code);
 }

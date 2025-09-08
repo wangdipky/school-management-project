@@ -7,4 +7,8 @@ package vn.com.v4v.groupservice.constant;
  * CreatedDate: 03/09/2025
  * */
 public class GroupConst {
+    
+    public static final String URI_GROUP = "/group";
+
+
 }

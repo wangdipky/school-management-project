@@ -1,6 +1,7 @@
 package vn.com.v4v.common;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import vn.com.v4v.dto.BaseResponseDto;
 import vn.com.v4v.exception.DetailException;
 
@@ -31,11 +32,34 @@ public class HandleError {
         // Set dto
         responseDto = BaseResponseDto.builder()
                 .data(exception.getMessage())
-                .time(new Date())
+                .time(new Date(start))
                 .requestId(UUID.randomUUID().toString())
                 .build();
         // Init return data
         response = new BaseResponse(responseDto, status);
         return response;
     }
+
+    public BaseResponse handleBindingResult(Long start, BindingResult bindingResult) {
+
+        HttpStatus status = null;
+        BaseResponse response = null;
+        BaseResponseDto responseDto;
+        if(bindingResult.hasErrors()) {
+
+            // Set status
+            status = HttpStatus.BAD_REQUEST;
+            // Set dto
+            responseDto = BaseResponseDto.builder()
+                    .data(bindingResult.getFieldErrors())
+                    .time(new Date(start))
+                    .requestId(UUID.randomUUID().toString())
+                    .build();
+
+            // Init return data
+            response = new BaseResponse(responseDto, status);
+        }
+        return response;
+    }
+
 }
