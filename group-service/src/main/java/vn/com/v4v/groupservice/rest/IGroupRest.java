@@ -26,4 +26,6 @@ public interface IGroupRest {
     BaseResponse addGroup(@RequestBody AddGroupDto dto
             , BindingResult bindingResult
             , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+
+    void exportExcel(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception;
 }
