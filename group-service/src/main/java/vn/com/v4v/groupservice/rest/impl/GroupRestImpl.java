@@ -1,5 +1,8 @@
 package vn.com.v4v.groupservice.rest.impl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -31,13 +35,19 @@ import vn.com.v4v.groupservice.constant.GroupConst;
 import vn.com.v4v.groupservice.dto.AddGroupDto;
 import vn.com.v4v.groupservice.dto.ListSearchConditionDto;
 import vn.com.v4v.groupservice.entity.SchGroup;
+import vn.com.v4v.groupservice.enums.ExportGroupExcelEnum;
 import vn.com.v4v.groupservice.rest.IGroupRest;
 import vn.com.v4v.groupservice.service.IGroupService;
 import vn.com.v4v.groupservice.validator.AddGroupValidator;
 import vn.com.v4v.utils.SearchUtils;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Name: GroupRestImpl
@@ -107,7 +117,6 @@ public class GroupRestImpl extends AbstractRest implements IGroupRest {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=users" + ".xlsx";
         httpServletResponse.setHeader(headerKey, headerValue);
-        // Init data
         List<SchGroup> listGroups = new ArrayList<>();
         for(int i = 0; i < 10; i++) {
             SchGroup schGroup = new SchGroup();
@@ -117,32 +126,66 @@ public class GroupRestImpl extends AbstractRest implements IGroupRest {
             schGroup.setDescription(i+"_DESC");
             listGroups.add(schGroup);
         }
+        exportExcel(listGroups, httpServletResponse, "GROUP_MANAGEMENT", ExportGroupExcelEnum.class);
+    }
 
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("sheet1");
-        XSSFRow row = sheet.createRow(0);
+    private <T extends Enum<T>> void exportExcel(List<?> listData, HttpServletResponse response, String templateName, Class<T> enumClass) throws Exception {
 
-        row.createCell(0).setCellValue("ID");
-        row.createCell(1).setCellValue("CODE");
-        row.createCell(2).setCellValue("NAME");
-        row.createCell(3).setCellValue("DESCRIPTION");
+        // Init data
+        Gson gson = new Gson();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, false);
 
-        int rowIndex = 1;
-        for(SchGroup schGroup : listGroups) {
 
-            XSSFRow dataRow = sheet.createRow(rowIndex);
-            dataRow.createCell(0).setCellValue(schGroup.getId());
-            dataRow.createCell(1).setCellValue(schGroup.getCode());
-            dataRow.createCell(2).setCellValue(schGroup.getName());
-            dataRow.createCell(3).setCellValue(schGroup.getDescription());
-            rowIndex++;
+        XSSFWorkbook workbook = new XSSFWorkbook(ResourceUtils.getFile("classpath:template/excel/"+ templateName +".xlsx"));
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        int indexRow = 4;
+
+        for(Object item : listData) {
+
+            XSSFRow row = sheet.createRow(indexRow++);
+
+            // Init row from ENUM
+            String toJson = gson.toJson(item);
+            Map<String, Object> toMap = mapper.readValue(toJson, Map.class);
+            int index = 0;
+
+            T[] values = enumClass.getEnumConstants();
+            for(T value : values) {
+                System.out.println(toCamelCase(value.toString()));
+            }
+            int a = 1;
         }
 
         // Export
-        ServletOutputStream ops = httpServletResponse.getOutputStream();
-        workbook.write(ops);
-        workbook.close();
-        ops.close();
-        httpServletResponse.flushBuffer();
+//        ServletOutputStream ops = response.getOutputStream();
+//        workbook.write(ops);
+//        workbook.close();
+//        ops.close();
+//        response.flushBuffer();
     }
+
+    private String toCamelCase(String str) {
+
+        StringBuilder result = new StringBuilder("");
+        if(!str.contains("_")) {
+
+            result.append(str.toLowerCase());
+        } else {
+
+            String[] strs = str.split("");
+            for(int i = 0; i < strs.length; i++) {
+
+                if(i > 0 && strs[i - 1] != null && strs[i - 1].equals("_")) {
+
+                    result.append(strs[i]);
+                } else if (!strs[i].equals("_")) {
+
+                    result.append(strs[i].toLowerCase());
+                }
+            }
+        }
+        return result.toString();
+    }
+
 }
