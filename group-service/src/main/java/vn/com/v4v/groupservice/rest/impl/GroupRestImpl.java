@@ -19,13 +19,11 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ResourceUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.com.v4v.common.AbstractRest;
 import vn.com.v4v.common.ApiRequest;
 import vn.com.v4v.common.BaseResponse;
@@ -34,11 +32,14 @@ import vn.com.v4v.constant.CommonConstant;
 import vn.com.v4v.groupservice.constant.GroupConst;
 import vn.com.v4v.groupservice.dto.AddGroupDto;
 import vn.com.v4v.groupservice.dto.ListSearchConditionDto;
+import vn.com.v4v.groupservice.dto.UpdateGroupDto;
 import vn.com.v4v.groupservice.entity.SchGroup;
 import vn.com.v4v.groupservice.enums.ExportGroupExcelEnum;
 import vn.com.v4v.groupservice.rest.IGroupRest;
 import vn.com.v4v.groupservice.service.IGroupService;
 import vn.com.v4v.groupservice.validator.AddGroupValidator;
+import vn.com.v4v.groupservice.validator.UpdateGroupValidator;
+import vn.com.v4v.utils.ExcelUtils;
 import vn.com.v4v.utils.SearchUtils;
 
 import java.io.FileNotFoundException;
@@ -64,10 +65,13 @@ public class GroupRestImpl extends AbstractRest implements IGroupRest {
 
     private final AddGroupValidator addGroupValidator;
 
+    private final UpdateGroupValidator updateGroupValidator;
+
     @Autowired
-    public GroupRestImpl(IGroupService iGroupService, AddGroupValidator addGroupValidator) {
+    public GroupRestImpl(IGroupService iGroupService, AddGroupValidator addGroupValidator, UpdateGroupValidator updateGroupValidator) {
         this.iGroupService = iGroupService;
         this.addGroupValidator = addGroupValidator;
+        this.updateGroupValidator = updateGroupValidator;
     }
 
     @GetMapping(CommonConstant.URL_LIST)
@@ -88,6 +92,20 @@ public class GroupRestImpl extends AbstractRest implements IGroupRest {
         }
     }
 
+    @GetMapping(CommonConstant.URL_DETAIL + CommonConstant.URL_PATH_ID)
+    @Override
+    public BaseResponse detail(Long id, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+
+        long start = System.currentTimeMillis();
+        try {
+
+            SchGroup schGroup = this.iGroupService.getDetail(id);
+            return this.handleSuccess.handleSuccess(start, schGroup);
+        } catch (Exception e) {
+            return this.handleError.handleError(start, e);
+        }
+    }
+
     @PostMapping(CommonConstant.URL_CREATE)
     @Override
     public BaseResponse addGroup(@Valid AddGroupDto dto
@@ -102,90 +120,67 @@ public class GroupRestImpl extends AbstractRest implements IGroupRest {
                 return this.handleError.handleBindingResult(start, bindingResult);
             }
             addGroupValidator.validate(dto, bindingResult);
+
+            AddGroupDto res = iGroupService.addGroup(dto);
+            return this.handleSuccess.handleSuccess(start, res);
         } catch (Exception e) {
 
             return this.handleError.handleError(start, e);
         }
-        return null;
     }
 
-    @GetMapping(CommonConstant.URL_LIST + "/download")
+    @PutMapping(CommonConstant.URL_UPDATE)
     @Override
-    public void exportExcel(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    public BaseResponse updateGroup(@Valid UpdateGroupDto dto
+            , BindingResult bindingResult
+            , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-        httpServletResponse.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=users" + ".xlsx";
-        httpServletResponse.setHeader(headerKey, headerValue);
-        List<SchGroup> listGroups = new ArrayList<>();
-        for(int i = 0; i < 10; i++) {
-            SchGroup schGroup = new SchGroup();
-            schGroup.setId((long)i+1);
-            schGroup.setName(i+"_NAME");
-            schGroup.setCode("CODE_"+i);
-            schGroup.setDescription(i+"_DESC");
-            listGroups.add(schGroup);
-        }
-        exportExcel(listGroups, httpServletResponse, "GROUP_MANAGEMENT", ExportGroupExcelEnum.class);
-    }
+        long start = System.currentTimeMillis();
+        try {
 
-    private <T extends Enum<T>> void exportExcel(List<?> listData, HttpServletResponse response, String templateName, Class<T> enumClass) throws Exception {
+            if(bindingResult.hasErrors()) {
 
-        // Init data
-        Gson gson = new Gson();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, false);
-
-
-        XSSFWorkbook workbook = new XSSFWorkbook(ResourceUtils.getFile("classpath:template/excel/"+ templateName +".xlsx"));
-        XSSFSheet sheet = workbook.getSheetAt(0);
-        int indexRow = 4;
-
-        for(Object item : listData) {
-
-            XSSFRow row = sheet.createRow(indexRow++);
-
-            // Init row from ENUM
-            String toJson = gson.toJson(item);
-            Map<String, Object> toMap = mapper.readValue(toJson, Map.class);
-            int index = 0;
-
-            T[] values = enumClass.getEnumConstants();
-            for(T value : values) {
-                System.out.println(toCamelCase(value.toString()));
+                return this.handleError.handleBindingResult(start, bindingResult);
             }
-            int a = 1;
-        }
 
-        // Export
-//        ServletOutputStream ops = response.getOutputStream();
-//        workbook.write(ops);
-//        workbook.close();
-//        ops.close();
-//        response.flushBuffer();
+            updateGroupValidator.validate(dto, bindingResult);
+            UpdateGroupDto res = iGroupService.updateGroup(dto);
+            return this.handleSuccess.handleSuccess(start, res);
+        } catch (Exception e) {
+            return this.handleError.handleError(start, e);
+        }
     }
 
-    private String toCamelCase(String str) {
+    @DeleteMapping(CommonConstant.URL_DELETE + CommonConstant.URL_PATH_ID)
+    @Override
+    public BaseResponse deleteGroup(Long id
+            , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-        StringBuilder result = new StringBuilder("");
-        if(!str.contains("_")) {
+        long start = System.currentTimeMillis();
+        try {
 
-            result.append(str.toLowerCase());
-        } else {
-
-            String[] strs = str.split("");
-            for(int i = 0; i < strs.length; i++) {
-
-                if(i > 0 && strs[i - 1] != null && strs[i - 1].equals("_")) {
-
-                    result.append(strs[i]);
-                } else if (!strs[i].equals("_")) {
-
-                    result.append(strs[i].toLowerCase());
-                }
-            }
+            Long res = iGroupService.deleteGroup(id);
+            return this.handleSuccess.handleSuccess(start, res);
+        } catch (Exception e) {
+            return this.handleError.handleError(start, e);
         }
-        return result.toString();
     }
+
+    @GetMapping(CommonConstant.URL_LIST + CommonConstant.URL_DOWNLOAD)
+    @Override
+    public void exportExcel(MultiValueMap<String, String> params
+            , Pageable pageable
+            , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+
+        try {
+
+            ApiRequest<ListSearchConditionDto> request = SearchUtils.buildSearch(params, ListSearchConditionDto.class, pageable);
+            this.iGroupService.exportExcel(request, httpServletResponse);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 }

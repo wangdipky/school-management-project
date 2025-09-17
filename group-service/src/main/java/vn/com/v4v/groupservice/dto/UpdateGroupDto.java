@@ -17,8 +17,9 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddGroupDto {
+public class UpdateGroupDto {
 
+    @NotNull
     private Long id;
 
     @NotNull

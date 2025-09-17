@@ -14,15 +14,21 @@ public class CommonConstant {
 
     public static final String URL_LIST = "/list";
 
+    public static final String URL_DETAIL = "/detail";
+
     public static final String URL_CREATE = "/create";
 
     public static final String URL_UPDATE = "/update";
 
     public static final String URL_DELETE = "/delete";
 
+    public static final String URL_DOWNLOAD = "/download";
+
     public static final String URL_GET = "/get";
 
     public static final String URL_GET_ALL = "/getAll";
 
     public static final String URL_GET_BY_ID = "/getById";
+
+    public static final String URL_PATH_ID = "/{id}";
 }
