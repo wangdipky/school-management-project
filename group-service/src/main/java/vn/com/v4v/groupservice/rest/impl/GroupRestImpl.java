@@ -56,7 +56,6 @@ import java.util.Map;
  * Version: 1.0.0
  * CreatedDate: 05/09/2025
  * */
-@Log4j2
 @RestController
 @RequestMapping(CommonConstant.API_V1 + GroupConst.URI_GROUP)
 public class GroupRestImpl extends AbstractRest implements IGroupRest {

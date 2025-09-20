@@ -1,9 +1,10 @@
 package vn.com.v4v.groupservice.service.impl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.QueryFactory;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import vn.com.v4v.groupservice.enums.ExportGroupExcelEnum;
 import vn.com.v4v.groupservice.service.IGroupService;
 import vn.com.v4v.utils.ExcelUtils;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
  * CreatedDate: 05/09/2025
  * */
 @Transactional(rollbackFor = Exception.class)
+@Log4j2
 @Service
 public class GroupServiceImpl extends AbstractService implements IGroupService {
 
@@ -135,6 +138,7 @@ public class GroupServiceImpl extends AbstractService implements IGroupService {
         if(result == 1) {
             schGroup = this.returnNewDataByCode(dto.getCode());
             dto = mapper.convertValue(schGroup, AddGroupDto.class);
+            log.info("[{}]-[GROUP]-[CREATE] Success, data: {}", LocalDateTime.now(), dto.toString());
         }
 
         return dto;

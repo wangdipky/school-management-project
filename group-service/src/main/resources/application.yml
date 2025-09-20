@@ -8,3 +8,4 @@ spring:
     hibernate:
       ddl-auto: update # or create, create-drop, none
     show-sql: true
+debug: true
